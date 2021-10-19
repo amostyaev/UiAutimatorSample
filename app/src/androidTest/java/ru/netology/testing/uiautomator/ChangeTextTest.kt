@@ -8,11 +8,11 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+
 
 const val SETTINGS_PACKAGE = "com.android.settings"
 const val TIMEOUT = 5000L
@@ -21,31 +21,45 @@ const val TIMEOUT = 5000L
 class ChangeTextTest {
 
     private lateinit var device: UiDevice
+    private val textToSet = "Netology"
+
+    private fun waitForPackage(packageName: String) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        context.startActivity(intent)
+        device.wait(Until.hasObject(By.pkg(packageName)), TIMEOUT)
+    }
 
     @Before
     fun beforeEachTest() {
-    }
-
-    @Test
-    fun testSoundSettings() {
         // Press home
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.pressHome()
 
         // Wait for launcher
-        val launcherPackage: String = device.launcherPackageName
-        assertThat(launcherPackage, notNullValue())
+        val launcherPackage = device.launcherPackageName
         device.wait(Until.hasObject(By.pkg(launcherPackage)), TIMEOUT)
+    }
 
-        // Launch the app
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = context.packageManager.getLaunchIntentForPackage(SETTINGS_PACKAGE)
-        context.startActivity(intent)
-        device.wait(Until.hasObject(By.pkg(SETTINGS_PACKAGE)), TIMEOUT)
+    @Test
+    fun testSoundSettings() {
+        waitForPackage(SETTINGS_PACKAGE)
 
         device.findObject(
-            UiSelector().text("Sound").className("android.widget.TextView")
-        ).clickAndWaitForNewWindow(TIMEOUT)
+            UiSelector().resourceId("android:id/title").instance(5)
+        ).click()
+    }
+
+    @Test
+    fun testChangeText() {
+        val packageName = ApplicationProvider.getApplicationContext<Context>().packageName
+        waitForPackage(packageName)
+
+        device.findObject(By.res(packageName, "userInput")).text = textToSet
+        device.findObject(By.res(packageName, "buttonChange")).click()
+
+        val result = device.findObject(By.res(packageName, "textToBeChanged")).text
+        assertEquals(result, textToSet)
     }
 
 }
