@@ -41,6 +41,10 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
 
+    // Local tests dependencies
+    def junit_version = '4.13.2'
+    testImplementation "junit:junit:$junit_version"
+
     // Testing-only dependencies
     def test_core_version = "1.4.0"
     def test_junit_version = "1.1.3"
