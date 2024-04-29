@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 31
 
+    
     defaultConfig {
         applicationId "ru.netology.testing.uiautomator"
         minSdkVersion 21
